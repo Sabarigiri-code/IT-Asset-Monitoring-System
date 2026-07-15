@@ -13,7 +13,7 @@ export default function AuditLogs() {
 
   const fetchLogs = () => {
     setIsLoading(true);
-    fetch('http://localhost:8080/api/logs')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/logs')
       .then(res => res.json())
       .then(data => {
         setLogs(data);

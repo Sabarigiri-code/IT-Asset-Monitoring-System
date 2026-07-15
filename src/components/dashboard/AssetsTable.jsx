@@ -68,14 +68,14 @@ export default function AssetsTable() {
       attachmentData: attachmentData
     };
 
-    fetch('http://localhost:8080/api/requests', {
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newReq)
     })
     .then((res) => {
       if (!res.ok) throw new Error('Failed to create request');
-      return fetch(`http://localhost:8080/api/assets/${asset.id}`, {
+      return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${asset.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...asset, status: 'Pending Return' })
@@ -98,7 +98,7 @@ export default function AssetsTable() {
   };
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/assets')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
         // Exclude 'Pending Return' assets from this quick dashboard view

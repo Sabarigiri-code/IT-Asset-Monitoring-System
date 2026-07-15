@@ -26,7 +26,7 @@ export default function SummaryCards() {
 
   useEffect(() => {
     // Fetch user's assigned assets
-    fetch('http://localhost:8080/api/assets')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
         const myAssets = data.filter(a => String(a.assignee || '').trim().toLowerCase() === String(userName || '').trim().toLowerCase());
@@ -36,7 +36,7 @@ export default function SummaryCards() {
       .catch(console.error);
 
     // Fetch user's requests and issues
-    fetch('http://localhost:8080/api/requests')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
         const myRequests = data.filter(r => r.requesterName === userName || r.requesterEmail === userEmail);

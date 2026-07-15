@@ -21,7 +21,7 @@ export default function AdminDashboardHome() {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/requests')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
         const pending = data
@@ -49,7 +49,7 @@ export default function AdminDashboardHome() {
   useEffect(() => {
     try {
       // Inventory from MongoDB
-      fetch('http://localhost:8080/api/assets')
+      fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
         .then(res => res.json())
         .then(inventory => {
           const hw = inventory.filter(a => a.type === 'Hardware').length;
@@ -125,7 +125,7 @@ export default function AdminDashboardHome() {
     
     const updatedRequest = { ...req.fullRequest, status: action === 'approve' ? 'Approved' : 'Rejected' };
     
-    fetch(`http://localhost:8080/api/requests/${id}`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedRequest)
@@ -134,12 +134,12 @@ export default function AdminDashboardHome() {
     // Handle side-effects for Approve/Reject
     if (action === 'approve') {
       if (req.type === 'Return' && req.assetId) {
-        fetch(`http://localhost:8080/api/assets/${req.assetId}`)
+        fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`)
           .then(res => res.json())
           .then(assetObj => {
              assetObj.status = (req.isDamaged && !req.fullRequest.repairProofData) ? 'In Repair' : 'Available';
              assetObj.assignee = '-';
-             return fetch(`http://localhost:8080/api/assets/${req.assetId}`, {
+             return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`, {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify(assetObj)
@@ -147,12 +147,12 @@ export default function AdminDashboardHome() {
           })
           .catch(e => console.error(e));
       } else if (req.assetId) {
-        fetch(`http://localhost:8080/api/assets/${req.assetId}`)
+        fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`)
           .then(res => res.json())
           .then(assetObj => {
              assetObj.status = 'Assigned';
              assetObj.assignee = employee;
-             return fetch(`http://localhost:8080/api/assets/${req.assetId}`, {
+             return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`, {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify(assetObj)
@@ -171,7 +171,7 @@ export default function AdminDashboardHome() {
           health: 100,
           dateAdded: new Date().toISOString().split('T')[0]
         };
-        fetch('http://localhost:8080/api/assets', {
+        fetch('https://it-asset-monitoring-system.onrender.com/api/assets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newAssetData)
@@ -180,12 +180,12 @@ export default function AdminDashboardHome() {
     } else if (action === 'reject') {
       // If Admin rejects a Return request, the asset should revert to 'Assigned' and stay with the employee
       if (req.type === 'Return' && req.assetId) {
-        fetch(`http://localhost:8080/api/assets/${req.assetId}`)
+        fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`)
           .then(res => res.json())
           .then(assetObj => {
              assetObj.status = 'Assigned';
              // keep the existing assignee (the employee)
-             return fetch(`http://localhost:8080/api/assets/${req.assetId}`, {
+             return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`, {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify(assetObj)
@@ -195,11 +195,11 @@ export default function AdminDashboardHome() {
       }
       // If Admin rejects a New Request for a specific asset, revert asset from 'Requested' to 'Available'
       else if (req.type === 'Request' && req.assetId) {
-         fetch(`http://localhost:8080/api/assets/${req.assetId}`)
+         fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`)
           .then(res => res.json())
           .then(assetObj => {
              assetObj.status = 'Available';
-             return fetch(`http://localhost:8080/api/assets/${req.assetId}`, {
+             return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`, {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify(assetObj)
@@ -215,7 +215,7 @@ export default function AdminDashboardHome() {
       updatedRequest.returnDeadline = deadlineDate.toISOString();
       updatedRequest.fineAmount = 50.0;
       
-      fetch(`http://localhost:8080/api/requests/${id}`, {
+      fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedRequest)
@@ -223,11 +223,11 @@ export default function AdminDashboardHome() {
       
       // Ensure asset stays Assigned
       if (req.assetId) {
-        fetch(`http://localhost:8080/api/assets/${req.assetId}`)
+        fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`)
           .then(res => res.json())
           .then(assetObj => {
              assetObj.status = 'Assigned';
-             return fetch(`http://localhost:8080/api/assets/${req.assetId}`, {
+             return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${req.assetId}`, {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify(assetObj)

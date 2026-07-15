@@ -82,7 +82,7 @@ export default function StatusTracker() {
     } catch (e) {}
 
     // Fetch from backend DB
-    fetch('http://localhost:8080/api/requests')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
         // Filter by user

@@ -8,7 +8,7 @@ export default function UserRoles() {
   const [roleFilter, setRoleFilter] = useState('All');
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/auth/users')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/auth/users')
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data)) return;
@@ -57,7 +57,7 @@ export default function UserRoles() {
       return;
     }
 
-    fetch(`http://localhost:8080/api/auth/users/${userToToggle._mongoId || id}/role`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/auth/users/${userToToggle._mongoId || id}/role`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ export default function UserRoles() {
       return;
     }
     
-    fetch(`http://localhost:8080/api/auth/users/${userToToggle._mongoId || id}/status`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/auth/users/${userToToggle._mongoId || id}/status`, {
       method: 'PUT'
     })
     .then(res => res.json())

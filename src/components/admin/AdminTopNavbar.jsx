@@ -11,7 +11,7 @@ export default function AdminTopNavbar({ onToggleSidebar, adminName = 'Admin Use
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/auth/users')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/auth/users')
       .then(res => res.json())
       .then(data => {
         setNewUsers(data.filter(u => u.role !== 'admin').sort((a,b) => new Date(b.registeredAt) - new Date(a.registeredAt)));

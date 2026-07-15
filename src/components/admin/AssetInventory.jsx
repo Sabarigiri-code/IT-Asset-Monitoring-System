@@ -25,7 +25,7 @@ export default function AssetInventory() {
   const [assets, setAssets] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/assets')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => setAssets(data))
       .catch(err => console.error("Failed to fetch assets:", err));
@@ -33,7 +33,7 @@ export default function AssetInventory() {
   
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this asset?')) {
-      fetch(`http://localhost:8080/api/assets/${id}`, { method: 'DELETE' })
+      fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${id}`, { method: 'DELETE' })
         .then(() => {
           setAssets(assets.filter(a => a.id !== id));
           toast.success('Asset deleted successfully');
@@ -47,7 +47,7 @@ export default function AssetInventory() {
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://localhost:8080/api/assets/${editingAsset.id}`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${editingAsset.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editingAsset)
@@ -72,7 +72,7 @@ export default function AssetInventory() {
       id: newId,
       dateAdded: new Date().toISOString().split('T')[0]
     };
-    fetch('http://localhost:8080/api/assets', {
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(assetToAdd)

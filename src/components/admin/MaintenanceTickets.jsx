@@ -20,7 +20,7 @@ export default function MaintenanceTickets() {
   }, []);
 
   const fetchRequests = () => {
-    fetch('http://localhost:8080/api/requests')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
         // Map the backend data to the frontend ticket structure
@@ -82,14 +82,14 @@ export default function MaintenanceTickets() {
 
   const handleApproveRequest = async (ticket) => {
     try {
-      await fetch(`http://localhost:8080/api/requests/${ticket._mongoId}`, {
+      await fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${ticket._mongoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...ticket, status: 'Approved' })
       });
 
       if (ticket.assetId && (ticket.type === 'Return' || ticket.type === 'Request')) {
-        const assetRes = await fetch(`http://localhost:8080/api/assets/${ticket.assetId}`);
+        const assetRes = await fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${ticket.assetId}`);
         if (assetRes.ok) {
           const assetData = await assetRes.json();
           if (ticket.type === 'Return') {
@@ -101,7 +101,7 @@ export default function MaintenanceTickets() {
             assetData.assignee = ticket.reportedBy;
             assetData.deadlineDate = null;
           }
-          await fetch(`http://localhost:8080/api/assets/${ticket.assetId}`, {
+          await fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${ticket.assetId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(assetData)
@@ -109,7 +109,7 @@ export default function MaintenanceTickets() {
 
           // ✅ Write audit log entry
           const adminUser = (() => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}').name || 'Admin'; } catch { return 'Admin'; } })();
-          fetch('http://localhost:8080/api/logs', {
+          fetch('https://it-asset-monitoring-system.onrender.com/api/logs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -134,7 +134,7 @@ export default function MaintenanceTickets() {
 
   const handleRejectRequest = async (ticket) => {
     try {
-      await fetch(`http://localhost:8080/api/requests/${ticket._mongoId}`, {
+      await fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${ticket._mongoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...ticket, status: 'Rejected' })

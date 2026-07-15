@@ -106,14 +106,14 @@ export default function MyAssets() {
       attachmentData: returnModalData.attachmentData
     };
 
-    fetch('http://localhost:8080/api/requests', {
+    fetch('https://it-asset-monitoring-system.onrender.com/api/requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newReq)
     })
     .then((res) => {
       if (!res.ok) throw new Error('Failed to create request');
-      return fetch(`http://localhost:8080/api/assets/${asset.id}`, {
+      return fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${asset.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...asset, status: 'Pending Return' })
@@ -169,7 +169,7 @@ export default function MyAssets() {
       status: 'Repair Proof Submitted'
     };
     
-    fetch(`http://localhost:8080/api/requests/${repairModalData.request.id}`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${repairModalData.request.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedReq)
@@ -190,7 +190,7 @@ export default function MyAssets() {
   const handlePayFine = (req) => {
     if(window.confirm(`Are you sure you want to pay the fine of $${req.fineAmount}?`)) {
        const updatedReq = { ...req, fineAmount: 0 };
-       fetch(`http://localhost:8080/api/requests/${req.id}`, {
+       fetch(`https://it-asset-monitoring-system.onrender.com/api/requests/${req.id}`, {
          method: 'PUT',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify(updatedReq)
@@ -221,8 +221,8 @@ export default function MyAssets() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:8080/api/assets').then(r => r.json()),
-      fetch('http://localhost:8080/api/requests').then(r => r.json())
+      fetch('https://it-asset-monitoring-system.onrender.com/api/assets').then(r => r.json()),
+      fetch('https://it-asset-monitoring-system.onrender.com/api/requests').then(r => r.json())
     ])
     .then(([assetsData, requestsData]) => {
       setAssets(assetsData.filter(a => String(a.assignee || '').trim().toLowerCase() === String(userName || '').trim().toLowerCase()));
@@ -258,7 +258,7 @@ export default function MyAssets() {
         assetId: reportingAsset.id
       };
       
-      fetch('http://localhost:8080/api/requests', {
+      fetch('https://it-asset-monitoring-system.onrender.com/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newReq)

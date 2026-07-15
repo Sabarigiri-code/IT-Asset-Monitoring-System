@@ -86,8 +86,8 @@ export default function TopNavbar({ onToggleSidebar, userName = 'Saurabh Kumar',
     if (!userName) return;
 
     Promise.all([
-      fetch('http://localhost:8080/api/assets').then(r => r.json()).catch(() => []),
-      fetch('http://localhost:8080/api/requests').then(r => r.json()).catch(() => [])
+      fetch('https://it-asset-monitoring-system.onrender.com/api/assets').then(r => r.json()).catch(() => []),
+      fetch('https://it-asset-monitoring-system.onrender.com/api/requests').then(r => r.json()).catch(() => [])
     ]).then(([assetsData, requestsData]) => {
         const allAlerts = [];
 
@@ -218,7 +218,7 @@ export default function TopNavbar({ onToggleSidebar, userName = 'Saurabh Kumar',
 
   useEffect(() => {
     if (activeModal === 'profile') {
-      fetch('http://localhost:8080/api/assets')
+      fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
         .then(res => res.json())
         .then(data => {
           setMyAssets(data.filter(a => String(a.assignee || '').trim().toLowerCase() === String(userName || '').trim().toLowerCase()));
@@ -256,7 +256,7 @@ export default function TopNavbar({ onToggleSidebar, userName = 'Saurabh Kumar',
     } catch(e) {}
     
     if (mongoId) {
-      fetch(`http://localhost:8080/api/auth/users/${mongoId}/profile`, {
+      fetch(`https://it-asset-monitoring-system.onrender.com/api/auth/users/${mongoId}/profile`, {
          method: 'PUT',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({

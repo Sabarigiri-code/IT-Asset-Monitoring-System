@@ -15,7 +15,7 @@ export default function NewRequest() {
   const [inventory, setInventory] = useState([]);
 
   React.useEffect(() => {
-    fetch('http://localhost:8080/api/assets')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => setInventory(data))
       .catch(e => console.error(e));
@@ -49,7 +49,7 @@ export default function NewRequest() {
         requesterEmail: user.email || 'user@example.com'
       };
       
-      fetch('http://localhost:8080/api/requests', {
+      fetch('https://it-asset-monitoring-system.onrender.com/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newReq)
@@ -60,7 +60,7 @@ export default function NewRequest() {
         if (formData.assetId) {
           const requestedAsset = inventory.find(a => a.id === formData.assetId);
           if (requestedAsset) {
-            fetch(`http://localhost:8080/api/assets/${formData.assetId}`, {
+            fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${formData.assetId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ ...requestedAsset, status: 'Requested' })

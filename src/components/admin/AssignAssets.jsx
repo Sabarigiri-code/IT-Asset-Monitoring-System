@@ -15,7 +15,7 @@ export default function AssignAssets() {
   const [deadlineDate, setDeadlineDate] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/auth/users')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/auth/users')
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data)) return;
@@ -31,7 +31,7 @@ export default function AssignAssets() {
       })
       .catch(err => console.error("Failed to fetch backend users:", err));
 
-    fetch('http://localhost:8080/api/assets')
+    fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
         setAssets(data.filter(a => a.status === 'Available'));
@@ -53,7 +53,7 @@ export default function AssignAssets() {
       deadlineDate: deadlineDate || null 
     };
 
-    fetch(`http://localhost:8080/api/assets/${selectedAsset.id}`, {
+    fetch(`https://it-asset-monitoring-system.onrender.com/api/assets/${selectedAsset.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedAsset)
@@ -66,7 +66,7 @@ export default function AssignAssets() {
 
         // ✅ Write audit log entry
         const adminUser = (() => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}').name || 'Admin'; } catch { return 'Admin'; } })();
-        fetch('http://localhost:8080/api/logs', {
+        fetch('https://it-asset-monitoring-system.onrender.com/api/logs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
