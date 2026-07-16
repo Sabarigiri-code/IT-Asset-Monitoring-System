@@ -19,27 +19,25 @@ const getAssetImage = (asset) => {
   if (name.includes('iphone') || name.includes('phone') || name.includes('mobile') || cat.includes('phone')) {
     return 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=600&q=80';
   } else if (name.includes('mac') || name.includes('apple') || name.includes('ipad')) {
-    return 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80';
+    return '/images/laptop.png';
   } else if (cat.includes('monitor') || name.includes('monitor') || name.includes('display') || name.includes('ultrasharp') || name.includes('screen')) {
-    return 'https://images.unsplash.com/photo-1527443195645-1133f7f28990?auto=format&fit=crop&w=600&q=80';
+    return '/images/monitor.png';
   } else if (name.includes('dell') || name.includes('thinkpad') || name.includes('lenovo') || name.includes('hp')) {
-    return 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80';
+    return '/images/laptop.png';
   } else if (cat.includes('laptop')) {
-    const arr = [
-      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=600&q=80'
-    ];
-    return arr[(asset.id || 'A').charCodeAt(0) % arr.length];
+    return '/images/laptop.png';
   } else if (asset.type === 'Software' || cat.includes('license') || name.includes('software') || name.includes('office') || name.includes('adobe') || name.includes('jetbrains')) {
     return 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80';
-  } else if (name.includes('keyboard') || name.includes('mouse')) {
-    return 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=600&q=80';
+  } else if (name.includes('keyboard')) {
+    return '/images/keyboard.png';
+  } else if (name.includes('mouse')) {
+    return '/images/mouse.png';
   }
   
   // default peripheral/hardware
   const arr = [
-    'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
+    '/images/keyboard.png',
+    '/images/mouse.png'
   ];
   return arr[(asset.id || 'A').charCodeAt(0) % arr.length];
 };
