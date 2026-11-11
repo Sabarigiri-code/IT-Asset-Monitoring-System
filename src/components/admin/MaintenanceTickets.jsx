@@ -23,6 +23,10 @@ export default function MaintenanceTickets() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) {
+          setIsLoading(false);
+          return;
+        }
         // Map the backend data to the frontend ticket structure
         const mapped = data.map(req => ({
           id: req.id,

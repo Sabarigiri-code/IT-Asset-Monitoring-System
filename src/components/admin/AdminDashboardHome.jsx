@@ -24,6 +24,7 @@ export default function AdminDashboardHome() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) return;
         const pending = data
           .filter(r => (r.type === 'Request' || r.type === 'Return') && r.status === 'Pending Approval')
           .map(r => ({
@@ -52,6 +53,7 @@ export default function AdminDashboardHome() {
       fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
         .then(res => res.json())
         .then(inventory => {
+          if (!Array.isArray(inventory)) return;
           const hw = inventory.filter(a => a.type === 'Hardware').length;
           const sw = inventory.filter(a => a.type === 'Software').length;
           const available = inventory.filter(a => a.status === 'Available').length;

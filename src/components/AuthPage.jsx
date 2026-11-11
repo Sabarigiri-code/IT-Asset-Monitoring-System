@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 /* ──────────────────────────────────────────────
@@ -100,6 +100,8 @@ function BrandingPanel({ onFeatureClick }) {
   );
 }
 
+const PRIMARY_ADMIN_EMAIL = 'girimsabari7@gmail.com';
+
 /* ──────────────────────────────────────────────
    Sign In Form
    ────────────────────────────────────────────── */
@@ -133,12 +135,30 @@ function SignInForm({ onSwitch }) {
     const formEl = e.currentTarget;
     if (!formEl.checkValidity()) return;
     
+    // Strict client-side single admin check: only the primary admin email can log in with "Admin"
+    const isTargetingAdmin = form.role === 'admin';
+    const isPrimaryAdminEmail = form.email.trim().toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase();
+
+    if (isTargetingAdmin && !isPrimaryAdminEmail) {
+      const msg = `Access Denied: Only the designated system Administrator (${PRIMARY_ADMIN_EMAIL}) can sign in as Admin. Please select "Employee" to continue.`;
+      setApiError(msg);
+      toast.error('Access Denied! You do not have administrator privileges.', {
+        duration: 5000,
+        style: { background: '#dc2626', color: '#fff', fontWeight: 'bold', padding: '16px', fontSize: '1rem' },
+        icon: '⛔'
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      // Avoid sending 'admin' role for employees so legacy backends won't auto-promote
+      const roleToSend = isPrimaryAdminEmail && isTargetingAdmin ? 'admin' : 'employee';
+
       const response = await fetch('https://it-asset-monitoring-system.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password, role: form.role })
+        body: JSON.stringify({ email: form.email, password: form.password, role: roleToSend })
       });
       const data = await response.json();
       
@@ -180,18 +200,11 @@ function SignInForm({ onSwitch }) {
         localStorage.removeItem('rememberedPassword');
       }
       
-      // Save to localStorage
-      localStorage.setItem('currentUser', JSON.stringify({
-        name: data.user.fullName,
-        email: data.user.email,
-        role: data.user.role
-      }));
-      // The role the user SELECTED on the login form
-      const selectedRole = form.role; // 'employee' or 'admin'
       const dbRole = data.user.role || '';
+      const userIsAdmin = isPrimaryAdminEmail || dbRole.toLowerCase() === 'admin';
 
-      // Strict check: if they selected Admin but DB says they're not, block them
-      if (selectedRole === 'admin' && !dbRole.toLowerCase().includes('admin')) {
+      // Strict validation: if Admin login was requested, verify user actually has admin authorization
+      if (isTargetingAdmin && !userIsAdmin) {
         setApiError('Access Denied: You do not have admin privileges.');
         toast.error('Access Denied! This account does not have admin access.', {
           duration: 5000,
@@ -202,8 +215,15 @@ function SignInForm({ onSwitch }) {
         return;
       }
 
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify({
+        name: data.user.fullName,
+        email: data.user.email,
+        role: userIsAdmin ? 'admin' : (data.user.role || 'employee')
+      }));
+
       // Show welcome popup based on SELECTED role
-      const isAdminLogin = selectedRole === 'admin';
+      const isAdminLogin = isTargetingAdmin && userIsAdmin;
       const firstName = data.user.fullName ? data.user.fullName.split(' ')[0] : 'there';
       const dbRoleLower = dbRole.toLowerCase();
 
@@ -440,6 +460,12 @@ function SignInForm({ onSwitch }) {
               </label>
             </div>
           </div>
+          <div className="d-flex align-items-center gap-1 mt-2 px-1">
+            <i className={`bi ${form.role === 'admin' ? 'bi-shield-shaded text-primary' : 'bi-info-circle text-muted'}`} style={{ fontSize: '0.8rem' }}></i>
+            <span className="text-muted" style={{ fontSize: '0.78rem' }}>
+              {form.role === 'admin' ? 'Restricted to the designated system Administrator only.' : 'Standard employee asset workspace.'}
+            </span>
+          </div>
         </div>
 
         {/* Remember / Forgot */}
@@ -511,6 +537,12 @@ function RegisterForm({ onSwitch }) {
     const formEl = e.currentTarget;
     if (!formEl.checkValidity() || !passwordsMatch) return;
     
+    // Admin cannot be registered like normal employees
+    if (form.email.trim().toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()) {
+      setApiError(`This email is reserved for the designated System Administrator. Admin accounts cannot be created via registration; please sign in directly.`);
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('https://it-asset-monitoring-system.onrender.com/api/auth/register', {
@@ -519,7 +551,8 @@ function RegisterForm({ onSwitch }) {
         body: JSON.stringify({ 
           fullName: form.fullName, 
           email: form.email, 
-          password: form.password 
+          password: form.password,
+          role: 'employee'
         })
       });
       const data = await response.json();
@@ -530,14 +563,16 @@ function RegisterForm({ onSwitch }) {
         return;
       }
       
-      // Save to localStorage
+      // Save to localStorage as employee
       localStorage.setItem('currentUser', JSON.stringify({
         name: data.user.fullName,
         email: data.user.email,
-        role: data.user.role
+        role: 'employee'
       }));
 
-      // Navigate
+      toast.success(`Welcome to the team, ${data.user.fullName || 'Employee'}! 👋`);
+
+      // Navigate to Employee Dashboard
       navigate('/dashboard');
     } catch (err) {
       setApiError('Unable to connect to the server.');
@@ -548,8 +583,20 @@ function RegisterForm({ onSwitch }) {
   return (
     <div className="form-enter" key="register">
       <div className="form-header">
+        <div className="d-flex align-items-center gap-2 mb-2">
+          <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small">
+            <i className="bi bi-person-badge-fill me-1"></i> Employee Registration
+          </span>
+        </div>
         <h1>Create Account</h1>
-        <p>Register to get started with asset management</p>
+        <p>Register as an employee to request & manage IT assets</p>
+      </div>
+
+      <div className="alert alert-info py-2 px-3 small mb-3 border-0 rounded-3 d-flex align-items-start gap-2" style={{ background: '#eff6ff', color: '#1e40af', fontSize: '0.82rem' }}>
+        <i className="bi bi-shield-lock-fill mt-1 flex-shrink-0" style={{ color: '#2563eb' }}></i>
+        <div>
+          <strong>Employee Portal Access Only:</strong> The system is managed by one designated Administrator. Admin accounts cannot be created directly via registration.
+        </div>
       </div>
 
       {apiError && (
@@ -666,11 +713,17 @@ function RegisterForm({ onSwitch }) {
 /* ──────────────────────────────────────────────
    Auth Page (Main Component)
    ────────────────────────────────────────────── */
-export default function AuthPage() {
-  const [activeTab, setActiveTab] = useState('signin');
+export default function AuthPage({ defaultTab = 'signin' }) {
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [authPrompt, setAuthPrompt] = useState(null); // { label, role }
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
 
   const handleEnterConsole = (feature) => {
     // Close the modal and prompt user to sign in / register
@@ -701,6 +754,13 @@ export default function AuthPage() {
         <div className="auth-form-container">
           <div className={`auth-card ${authPrompt ? 'auth-card-highlight' : ''}`}>
             <div className="auth-card-body">
+
+              {/* Back to Home Link */}
+              <div className="mb-3">
+                <Link to="/" className="text-decoration-none small text-muted d-inline-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
+                  <i className="bi bi-arrow-left"></i> Back to Landing Page
+                </Link>
+              </div>
 
               {/* Auth Prompt Banner */}
               {authPrompt && (

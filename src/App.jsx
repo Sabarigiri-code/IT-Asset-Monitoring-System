@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import DashboardHome from './components/dashboard/DashboardHome';
@@ -14,6 +15,44 @@ import MyAssets from './components/dashboard/MyAssets';
 import StatusTracker from './components/dashboard/StatusTracker';
 import NewRequest from './components/dashboard/NewRequest';
 import { Toaster } from 'react-hot-toast';
+
+const PRIMARY_ADMIN_EMAIL = 'girimsabari7@gmail.com';
+
+function AdminRoute({ children }) {
+  try {
+    const stored = localStorage.getItem('currentUser');
+    if (!stored) {
+      toast.error('Please sign in to access the Admin Control Center.');
+      return <Navigate to="/" replace />;
+    }
+    const user = JSON.parse(stored);
+    const isDesignatedAdmin = user.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase() && (user.role?.toLowerCase() === 'admin');
+    if (!isDesignatedAdmin) {
+      toast.error('⛔ Access Denied: Only the designated Administrator can access the Admin portal.', {
+        duration: 5000,
+        style: { background: '#dc2626', color: '#fff', fontWeight: 'bold' },
+        icon: '⛔'
+      });
+      return <Navigate to="/dashboard" replace />;
+    }
+    return children;
+  } catch {
+    return <Navigate to="/" replace />;
+  }
+}
+
+function EmployeeRoute({ children }) {
+  try {
+    const stored = localStorage.getItem('currentUser');
+    if (!stored) {
+      toast.error('Please sign in to access the portal.');
+      return <Navigate to="/" replace />;
+    }
+    return children;
+  } catch {
+    return <Navigate to="/" replace />;
+  }
+}
 
 function PlaceholderPage({ title, icon }) {
   return (
@@ -31,19 +70,22 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth */}
-        <Route path="/" element={<AuthPage />} />
+        {/* Public Landing & Authentication */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<AuthPage defaultTab="signin" />} />
+        <Route path="/register" element={<AuthPage defaultTab="register" />} />
+        <Route path="/auth" element={<AuthPage defaultTab="signin" />} />
 
-        {/* Employee Dashboard */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        {/* Employee Dashboard (Protected for authenticated employees) */}
+        <Route path="/dashboard" element={<EmployeeRoute><DashboardLayout /></EmployeeRoute>}>
           <Route index element={<DashboardHome />} />
           <Route path="my-assets" element={<MyAssets />} />
           <Route path="new-request" element={<NewRequest />} />
           <Route path="status-tracker" element={<StatusTracker />} />
         </Route>
 
-        {/* Admin Control Center */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin Control Center (Strictly protected: ONLY girimsabari7@gmail.com) */}
+        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboardHome />} />
           <Route path="inventory" element={<AssetInventory />} />
           <Route path="assign" element={<AssignAssets />} />

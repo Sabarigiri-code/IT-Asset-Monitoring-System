@@ -16,7 +16,7 @@ export default function AuditLogs() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/logs')
       .then(res => res.json())
       .then(data => {
-        setLogs(data);
+        if (Array.isArray(data)) setLogs(data);
         setIsLoading(false);
       })
       .catch(e => {

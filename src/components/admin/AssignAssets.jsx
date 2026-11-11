@@ -34,7 +34,9 @@ export default function AssignAssets() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
-        setAssets(data.filter(a => a.status === 'Available'));
+        if (Array.isArray(data)) {
+          setAssets(data.filter(a => a.status === 'Available'));
+        }
       })
       .catch(err => console.error(err));
   }, []);

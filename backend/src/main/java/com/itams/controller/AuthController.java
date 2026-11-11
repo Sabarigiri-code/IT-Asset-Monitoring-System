@@ -20,13 +20,21 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    private static final String PRIMARY_ADMIN_EMAIL = "girimsabari7@gmail.com";
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
+        if (user.getEmail() != null && user.getEmail().trim().equalsIgnoreCase(PRIMARY_ADMIN_EMAIL)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error: This email belongs to the primary Administrator. Admin accounts cannot be created via registration. Please sign in instead."));
+        }
+
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error: Email is already registered!"));
         }
         
-        user.setRole("employee"); // Default role
+        // Strict enforcement: all registrations are Employees only
+        user.setRole("employee");
+        user.setStatus("Active");
         user.setRegisteredAt(new Date());
         userRepository.save(user);
         
@@ -54,15 +62,11 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Error: Incorrect password."));
         }
         
-        // Simple role check for prototype. Real app would use robust RBAC.
-        if (requestedRole != null && requestedRole.equals("admin") && !user.getRole().equals("admin")) {
-            // For now, let's just let any registered user login as admin to make the prototype easier, 
-            // OR enforce it if the user wants. The user didn't specify strict role separation, just that 
-            // they must be registered. Let's enforce that they MUST be in the DB.
-            // If they login as admin, we can auto-promote them to admin for prototype sake if they ask for it.
-            if (!user.getRole().equals("admin")) {
-                user.setRole("admin");
-                userRepository.save(user);
+        // Strict role check: Only the designated primary admin can log in with role "admin"
+        if (requestedRole != null && requestedRole.equalsIgnoreCase("admin")) {
+            boolean isAdmin = "admin".equalsIgnoreCase(user.getRole()) || PRIMARY_ADMIN_EMAIL.equalsIgnoreCase(user.getEmail());
+            if (!isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access Denied: Only the designated Administrator can log in as Admin."));
             }
         }
 
@@ -105,6 +109,23 @@ public class AuthController {
         }
 
         User user = userOpt.get();
+
+        // The system only has ONE designated Admin. Additional admin roles cannot be granted.
+        if (newRole.equalsIgnoreCase("admin") || newRole.equalsIgnoreCase("super admin")) {
+            if (!PRIMARY_ADMIN_EMAIL.equalsIgnoreCase(user.getEmail())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "message", "Error: The system can only have one Administrator (" + PRIMARY_ADMIN_EMAIL + "). Additional admin accounts cannot be created."
+                ));
+            }
+        }
+
+        // The primary administrator cannot be demoted
+        if (PRIMARY_ADMIN_EMAIL.equalsIgnoreCase(user.getEmail()) && !newRole.equalsIgnoreCase("admin")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "message", "Error: The primary Administrator account cannot be demoted."
+            ));
+        }
+
         user.setRole(newRole);
         userRepository.save(user);
         

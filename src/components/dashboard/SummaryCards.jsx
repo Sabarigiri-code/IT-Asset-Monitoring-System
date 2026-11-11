@@ -29,6 +29,7 @@ export default function SummaryCards() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) return;
         const myAssets = data.filter(a => String(a.assignee || '').trim().toLowerCase() === String(userName || '').trim().toLowerCase());
         const totalValue = myAssets.reduce((acc, curr) => acc + getCost(curr), 0);
         setStats(prev => ({ ...prev, assigned: myAssets.length, value: totalValue }));
@@ -39,6 +40,7 @@ export default function SummaryCards() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/requests')
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) return;
         const myRequests = data.filter(r => r.requesterName === userName || r.requesterEmail === userEmail);
         let stored = [];
         try { 

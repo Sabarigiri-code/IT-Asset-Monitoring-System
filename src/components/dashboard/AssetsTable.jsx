@@ -101,6 +101,7 @@ export default function AssetsTable() {
     fetch('https://it-asset-monitoring-system.onrender.com/api/assets')
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) return;
         // Exclude 'Pending Return' assets from this quick dashboard view
         setAssets(data.filter(a => 
           String(a.assignee || '').trim().toLowerCase() === String(userName || '').trim().toLowerCase()

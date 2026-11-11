@@ -7,6 +7,8 @@ export default function UserRoles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
 
+  const PRIMARY_ADMIN_EMAIL = 'girimsabari7@gmail.com';
+
   useEffect(() => {
     fetch('https://it-asset-monitoring-system.onrender.com/api/auth/users')
       .then(res => res.json())
@@ -17,7 +19,8 @@ export default function UserRoles() {
           name: u.fullName || 'Unknown User',
           email: u.email,
           department: 'Registered User', 
-          role: u.role === 'admin' ? 'Super Admin' 
+          role: (u.email && u.email.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()) || u.role === 'admin' 
+                ? 'Super Admin' 
                 : (u.role.toLowerCase() === 'it admin' ? 'IT Admin' 
                 : (u.role.toLowerCase() === 'manager' ? 'Manager' : 'Employee')),
           status: u.status || 'Active',
@@ -172,24 +175,30 @@ export default function UserRoles() {
                     </td>
                     <td className="py-3 text-muted">{user.lastLogin}</td>
                     <td className="text-end pe-4 py-3">
-                      <div className="dropdown">
-                        <button className="btn btn-sm btn-light border rounded-pill shadow-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Actions
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                          <li><h6 className="dropdown-header">Change Role</h6></li>
-                          <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'IT Admin')}>Promote to IT Admin</button></li>
-                          <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'Manager')}>Set as Manager</button></li>
-                          <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'Employee')}>Demote to Employee</button></li>
-                          <li><hr className="dropdown-divider" /></li>
-                          <li>
-                            <button className={`dropdown-item py-2 fw-medium ${user.status === 'Active' ? 'text-danger' : 'text-success'}`} onClick={() => toggleUserStatus(user.id)}>
-                              <i className={`bi ${user.status === 'Active' ? 'bi-person-x-fill' : 'bi-person-check-fill'} me-2`}></i>
-                              {user.status === 'Active' ? 'Suspend Account' : 'Reactivate Account'}
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
+                      {user.email && user.email.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase() ? (
+                        <span className="badge bg-dark text-white border border-secondary px-3 py-2 rounded-pill">
+                          <i className="bi bi-shield-lock-fill text-warning me-1"></i> System Owner
+                        </span>
+                      ) : (
+                        <div className="dropdown">
+                          <button className="btn btn-sm btn-light border rounded-pill shadow-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                          </button>
+                          <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li><h6 className="dropdown-header">Change Role</h6></li>
+                            <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'IT Admin')}><i className="bi bi-person-gear me-2"></i>Promote to IT Admin</button></li>
+                            <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'Manager')}><i className="bi bi-briefcase me-2"></i>Set as Manager</button></li>
+                            <li><button className="dropdown-item py-2" onClick={() => updateUserRole(user.id, 'Employee')}><i className="bi bi-person me-2"></i>Demote to Employee</button></li>
+                            <li><hr className="dropdown-divider" /></li>
+                            <li>
+                              <button className={`dropdown-item py-2 fw-medium ${user.status === 'Active' ? 'text-danger' : 'text-success'}`} onClick={() => toggleUserStatus(user.id)}>
+                                <i className={`bi ${user.status === 'Active' ? 'bi-person-x-fill' : 'bi-person-check-fill'} me-2`}></i>
+                                {user.status === 'Active' ? 'Suspend Account' : 'Reactivate Account'}
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )) : (
